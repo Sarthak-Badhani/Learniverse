@@ -1,37 +1,20 @@
-import { useRef, useEffect, KeyboardEvent } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Player } from '../types/game';
 
 interface PlayerPanelProps {
   player: Player;
-  onInputChange: (value: string) => void;
-  onSubmit: () => void;
+  onOptionSelect: (option: number) => void;
   disabled: boolean;
   isWinner: boolean;
 }
 
 export const PlayerPanel = ({
   player,
-  onInputChange,
-  onSubmit,
+  onOptionSelect,
   disabled,
   isWinner,
 }: PlayerPanelProps) => {
-  const inputRef = useRef<HTMLInputElement>(null);
   const isLeft = player.id === 'left';
-
-  // Focus handling
-  useEffect(() => {
-    if (!disabled && player.currentQuestion && inputRef.current) {
-      // Don't auto-focus to allow both players to type
-    }
-  }, [disabled, player.currentQuestion]);
-
-  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && player.inputValue) {
-      onSubmit();
-    }
-  };
 
   const bgColorClass = isLeft
     ? 'from-blue-500 to-blue-600'
@@ -41,9 +24,9 @@ export const PlayerPanel = ({
     ? 'border-blue-300'
     : 'border-red-300';
 
-  const inputClass = isLeft
-    ? 'player-input-left'
-    : 'player-input-right';
+  const buttonColorClass = isLeft
+    ? 'bg-blue-700 hover:bg-blue-800'
+    : 'bg-red-700 hover:bg-red-800';
 
   return (
     <motion.div
@@ -105,60 +88,75 @@ export const PlayerPanel = ({
         <motion.div
           key={player.currentQuestion.id}
           className={`bg-white/20 backdrop-blur-sm rounded-lg sm:rounded-xl p-3 sm:p-6 border-2 ${borderColorClass}`}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 20 }}
         >
-          <div className="text-center mb-2 sm:mb-4">
-            <span className="text-2xl sm:text-4xl font-bold text-white drop-shadow-lg">
-              {player.currentQuestion.displayText}
-            </span>
-          </div>
-
-          {/* Answer input */}
-          <div className="flex gap-1 sm:gap-2">
-            <input
-              ref={inputRef}
-              type="text"
-              inputMode="numeric"
-              pattern="-?[0-9]*"
-              value={player.inputValue}
-              onChange={(e) => onInputChange(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={disabled}
-              placeholder="?"
-              className={`flex-1 px-2 sm:px-4 py-2 sm:py-3 text-xl sm:text-2xl font-bold text-center rounded-lg 
-                bg-white text-gray-800 placeholder-gray-400
-                disabled:opacity-50 disabled:cursor-not-allowed
-                transition-all ${inputClass}`}
-            />
-            <motion.button
-              onClick={onSubmit}
-              disabled={disabled || !player.inputValue}
-              className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-bold text-white text-sm sm:text-base
-                ${isLeft ? 'bg-blue-700 hover:bg-blue-800' : 'bg-red-700 hover:bg-red-800'}
-                disabled:opacity-50 disabled:cursor-not-allowed
-                transition-all`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          <motion.div 
+            className="text-center mb-3 sm:mb-4"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <motion.span 
+              className="text-2xl sm:text-4xl font-bold text-white drop-shadow-lg inline-block"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ type: 'spring', stiffness: 400, delay: 0.15 }}
             >
-              GO!
-            </motion.button>
+              {player.currentQuestion.displayText}
+            </motion.span>
+          </motion.div>
+
+          {/* MCQ Options */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            {player.currentQuestion.options.map((option, index) => {
+              const isSelected = player.selectedOption === option;
+              const isCorrectAnswer = option === player.currentQuestion!.answer;
+              const showCorrect = player.isCorrect === true && isCorrectAnswer;
+              const showWrong = isSelected && player.isCorrect === false;
+
+              return (
+                <motion.button
+                  key={`${player.currentQuestion!.id}-${index}`}
+                  onClick={() => onOptionSelect(option)}
+                  disabled={disabled || player.isCorrect === true}
+                  initial={{ opacity: 0, y: 20, scale: 0.8 }}
+                  animate={{ 
+                    opacity: 1, 
+                    y: 0, 
+                    scale: 1,
+                    ...(showWrong && { x: [0, -5, 5, -5, 5, 0] })
+                  }}
+                  transition={{ 
+                    delay: 0.2 + index * 0.1,
+                    type: 'spring',
+                    stiffness: 400,
+                    damping: 15
+                  }}
+                  className={`
+                    px-2 sm:px-4 py-3 sm:py-4 rounded-lg sm:rounded-xl font-bold text-lg sm:text-2xl
+                    transition-colors
+                    ${showCorrect 
+                      ? 'bg-green-500 text-white ring-4 ring-green-300' 
+                      : showWrong 
+                        ? 'bg-red-400 text-white' 
+                        : `bg-white text-gray-800 ${buttonColorClass.replace('bg-', 'hover:bg-').replace('hover:bg-', 'hover:text-white hover:bg-')}`
+                    }
+                    disabled:cursor-not-allowed
+                    ${disabled && !showCorrect ? 'opacity-60' : ''}
+                  `}
+                  whileHover={!disabled && !player.isCorrect ? { scale: 1.08, y: -2 } : {}}
+                  whileTap={!disabled && !player.isCorrect ? { scale: 0.92 } : {}}
+                >
+                  {option}
+                </motion.button>
+              );
+            })}
           </div>
 
           {/* Feedback */}
           <AnimatePresence>
-            {player.isCorrect === false && (
-              <motion.div
-                className="mt-3 text-center"
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-              >
-                <span className="text-white bg-red-600/80 px-3 py-1 rounded-full text-sm">
-                  ❌ Try again!
-                </span>
-              </motion.div>
-            )}
             {player.isCorrect === true && (
               <motion.div
                 className="mt-3 text-center"
@@ -167,7 +165,7 @@ export const PlayerPanel = ({
                 exit={{ opacity: 0 }}
               >
                 <span className="text-white bg-green-600/80 px-3 py-1 rounded-full text-sm">
-                  ✅ Correct!
+                  ✅ Correct! +1 Point
                 </span>
               </motion.div>
             )}

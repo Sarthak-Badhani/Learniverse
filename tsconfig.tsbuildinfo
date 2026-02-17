@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/vite-env.d.ts","./src/components/gameboard.tsx","./src/components/gamesetup.tsx","./src/components/playerpanel.tsx","./src/components/rope.tsx","./src/components/winnerscreen.tsx","./src/components/index.ts","./src/hooks/usegamestate.ts","./src/types/game.ts","./src/utils/mathgenerator.ts"],"version":"5.6.3"}

@@ -11,6 +11,7 @@ export interface Question {
   operation: Operation;
   answer: number;
   displayText: string;
+  options: number[]; // 3 options: 1 correct + 2 wrong, shuffled
 }
 
 export interface Player {
@@ -18,7 +19,7 @@ export interface Player {
   name: string;
   score: number;
   currentQuestion: Question | null;
-  inputValue: string;
+  selectedOption: number | null;
   isCorrect: boolean | null;
   streak: number;
 }

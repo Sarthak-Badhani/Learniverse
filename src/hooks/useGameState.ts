@@ -7,7 +7,7 @@ const createInitialPlayer = (id: 'left' | 'right', name: string): Player => ({
   name,
   score: 0,
   currentQuestion: null,
-  inputValue: '',
+  selectedOption: null,
   isCorrect: null,
   streak: 0,
 });
@@ -59,13 +59,13 @@ export const useGameState = () => {
           left: {
             ...prev.players.left,
             currentQuestion: leftQuestion,
-            inputValue: '',
+            selectedOption: null,
             isCorrect: null,
           },
           right: {
             ...prev.players.right,
             currentQuestion: rightQuestion,
-            inputValue: '',
+            selectedOption: null,
             isCorrect: null,
           },
         },
@@ -73,48 +73,26 @@ export const useGameState = () => {
     });
   }, [gameState]);
 
-  // Handle input change
-  const handleInputChange = useCallback(
-    (playerId: 'left' | 'right', value: string) => {
-      // Only allow numbers and minus sign
-      if (value !== '' && !/^-?\d*$/.test(value)) return;
-
-      setGameState((prev) => {
-        if (!prev || prev.gameStatus !== 'playing') return prev;
-        return {
-          ...prev,
-          players: {
-            ...prev.players,
-            [playerId]: {
-              ...prev.players[playerId],
-              inputValue: value,
-            },
-          },
-        };
-      });
-    },
-    []
-  );
-
-  // Handle answer submission
-  const submitAnswer = useCallback(
-    (playerId: 'left' | 'right') => {
+  // Handle option selection (MCQ)
+  const handleOptionSelect = useCallback(
+    (playerId: 'left' | 'right', selectedOption: number) => {
       setGameState((prev) => {
         if (!prev || prev.gameStatus !== 'playing' || prev.roundLocked) return prev;
 
         const player = prev.players[playerId];
-        if (!player.currentQuestion || !player.inputValue) return prev;
+        if (!player.currentQuestion) return prev;
 
-        const isCorrect = validateAnswer(player.currentQuestion, player.inputValue);
+        const isCorrect = validateAnswer(player.currentQuestion, selectedOption);
 
         if (!isCorrect) {
-          // Wrong answer - just mark it wrong, don't advance
+          // Wrong answer - mark incorrect, player can still try other options
           return {
             ...prev,
             players: {
               ...prev.players,
               [playerId]: {
                 ...player,
+                selectedOption,
                 isCorrect: false,
                 streak: 0,
               },
@@ -122,7 +100,7 @@ export const useGameState = () => {
           };
         }
 
-        // Lock round to prevent double scoring
+        // Correct! Lock round and move rope
         const ropeChange = playerId === 'left' ? -1 : 1;
         const newRopePosition = prev.ropePosition + ropeChange;
 
@@ -141,6 +119,7 @@ export const useGameState = () => {
             ...prev.players,
             [playerId]: {
               ...player,
+              selectedOption,
               isCorrect: true,
               score: player.score + 1,
               streak: player.streak + 1,
@@ -167,13 +146,13 @@ export const useGameState = () => {
           left: {
             ...prev.players.left,
             currentQuestion: leftQuestion,
-            inputValue: '',
+            selectedOption: null,
             isCorrect: null,
           },
           right: {
             ...prev.players.right,
             currentQuestion: rightQuestion,
-            inputValue: '',
+            selectedOption: null,
             isCorrect: null,
           },
         },
@@ -184,7 +163,7 @@ export const useGameState = () => {
   // Auto advance to next round after correct answer
   useEffect(() => {
     if (gameState?.roundLocked && gameState.gameStatus === 'playing') {
-      const timer = setTimeout(nextRound, 1000);
+      const timer = setTimeout(nextRound, 1500); // 1.5s delay for animation
       return () => clearTimeout(timer);
     }
   }, [gameState?.roundLocked, gameState?.gameStatus, nextRound]);
@@ -204,8 +183,7 @@ export const useGameState = () => {
     config,
     initializeGame,
     startGame,
-    handleInputChange,
-    submitAnswer,
+    handleOptionSelect,
     nextRound,
     resetGame,
     restartGame,

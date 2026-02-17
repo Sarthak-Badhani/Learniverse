@@ -6,69 +6,86 @@ interface RopeProps {
 }
 
 // Animated stick figure pulling rope - LEFT side (facing RIGHT, pulling left)
+// Hand is at the RIGHT edge of SVG to connect with rope
 const LeftPullingFigure = ({ color, isWinning }: { color: string; isWinning: boolean }) => {
   const skinColor = '#FFD5B5';
   const pullIntensity = isWinning ? 1 : 0.5;
   
   return (
     <motion.svg
-      width="60"
-      height="80"
-      viewBox="0 0 60 80"
-      animate={isWinning ? { x: [0, -8, 0] } : { x: [0, -3, 0] }}
+      width="80"
+      height="90"
+      viewBox="0 0 80 90"
+      animate={isWinning ? { x: [0, -5, 0] } : { x: [0, -2, 0] }}
       transition={{ repeat: Infinity, duration: isWinning ? 0.25 : 0.5, ease: 'easeInOut' }}
     >
       {/* Head */}
-      <motion.circle cx="25" cy="12" r="10" fill={skinColor} stroke={color} strokeWidth="2"
-        animate={{ cx: [25, 22, 25] }}
+      <motion.circle cx="20" cy="15" r="12" fill={skinColor} stroke={color} strokeWidth="2.5"
+        animate={{ cx: [20, 17, 20] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
-      {/* Eyes - looking right */}
-      <motion.circle cx="28" cy="10" r="2" fill="#333" animate={{ cx: [28, 25, 28] }} transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }} />
-      <motion.circle cx="32" cy="10" r="2" fill="#333" animate={{ cx: [32, 29, 32] }} transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }} />
-      {/* Mouth */}
-      <motion.path d="M 26 16 Q 29 18 32 16" stroke="#333" strokeWidth="1.5" fill="none" />
+      {/* Eyes - looking right toward rope */}
+      <circle cx="23" cy="13" r="2" fill="#333" />
+      <circle cx="28" cy="13" r="2" fill="#333" />
+      {/* Determined expression */}
+      <path d="M 20 20 Q 24 22 28 20" stroke="#333" strokeWidth="2" fill="none" />
 
-      {/* Body - leaning left (backward) */}
-      <motion.line x1="25" y1="22" x2="18" y2="45" stroke={color} strokeWidth="4" strokeLinecap="round"
-        animate={{ x1: [25, 22, 25], x2: [18, 12, 18] }}
-        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
-      />
-
-      {/* Arms reaching RIGHT toward rope */}
-      <motion.line x1="22" y1="28" x2="55" y2="40" stroke={skinColor} strokeWidth="4" strokeLinecap="round"
-        animate={{ x1: [22, 19, 22], x2: [55, 50, 55] }}
-        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
-      />
-      {/* Hand gripping */}
-      <motion.circle cx="55" cy="40" r="4" fill={skinColor} stroke={color} strokeWidth="1"
-        animate={{ cx: [55, 50, 55] }}
+      {/* Body - leaning back for pulling */}
+      <motion.line x1="20" y1="27" x2="12" y2="52" stroke={color} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [20, 17, 20], x2: [12, 8, 12] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
 
-      {/* Left leg - back */}
-      <motion.line x1="18" y1="45" x2="5" y2="72" stroke={color} strokeWidth="4" strokeLinecap="round"
-        animate={{ x1: [18, 12, 18], x2: [5, 0, 5] }}
+      {/* Upper arm - shoulder to elbow */}
+      <motion.line x1="18" y1="32" x2="40" y2="38" stroke={skinColor} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [18, 15, 18], x2: [40, 38, 40] }}
+        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
+      />
+      
+      {/* Lower arm - elbow to hand (reaching toward rope at right edge) */}
+      <motion.line x1="40" y1="38" x2="75" y2="45" stroke={skinColor} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [40, 38, 40], x2: [75, 72, 75] }}
+        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
+      />
+      
+      {/* Hand gripping at rope connection point (right edge) */}
+      <motion.ellipse cx="77" cy="45" rx="5" ry="6" fill={skinColor} stroke={color} strokeWidth="1.5"
+        animate={{ cx: [77, 74, 77] }}
+        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
+      />
+      {/* Fingers wrapped around rope */}
+      <motion.path d="M 74 42 Q 80 45 74 48" stroke={skinColor} strokeWidth="3" fill="none"
+        animate={{ d: ["M 74 42 Q 80 45 74 48", "M 71 42 Q 77 45 71 48", "M 74 42 Q 80 45 74 48"] }}
+        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
+      />
+
+      {/* Left leg - back, bracing */}
+      <motion.line x1="12" y1="52" x2="0" y2="80" stroke={color} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [12, 8, 12], x2: [0, -3, 0] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
       {/* Right leg - front */}
-      <motion.line x1="18" y1="45" x2="28" y2="72" stroke={color} strokeWidth="4" strokeLinecap="round"
-        animate={{ x1: [18, 12, 18] }}
+      <motion.line x1="12" y1="52" x2="25" y2="80" stroke={color} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [12, 8, 12] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
       {/* Feet */}
-      <motion.ellipse cx="5" cy="74" rx="6" ry="3" fill={color}
-        animate={{ cx: [5, 0, 5] }}
+      <motion.ellipse cx="0" cy="82" rx="7" ry="4" fill={color}
+        animate={{ cx: [0, -3, 0] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
-      <ellipse cx="28" cy="74" rx="6" ry="3" fill={color} />
+      <ellipse cx="25" cy="82" rx="7" ry="4" fill={color} />
 
-      {/* Sweat when winning */}
+      {/* Sweat drops when winning */}
       {isWinning && (
         <>
-          <motion.circle cx="15" cy="5" r="2" fill="#87CEEB"
-            animate={{ cy: [5, 20], opacity: [1, 0] }}
+          <motion.circle cx="10" cy="8" r="2" fill="#87CEEB"
+            animate={{ cy: [8, 25], opacity: [1, 0] }}
             transition={{ repeat: Infinity, duration: 0.5 }}
+          />
+          <motion.circle cx="30" cy="5" r="1.5" fill="#87CEEB"
+            animate={{ cy: [5, 22], opacity: [1, 0] }}
+            transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
           />
         </>
       )}
@@ -77,69 +94,86 @@ const LeftPullingFigure = ({ color, isWinning }: { color: string; isWinning: boo
 };
 
 // Animated stick figure pulling rope - RIGHT side (facing LEFT, pulling right)
+// Hand is at the LEFT edge of SVG to connect with rope
 const RightPullingFigure = ({ color, isWinning }: { color: string; isWinning: boolean }) => {
   const skinColor = '#FFD5B5';
   const pullIntensity = isWinning ? 1 : 0.5;
   
   return (
     <motion.svg
-      width="60"
-      height="80"
-      viewBox="0 0 60 80"
-      animate={isWinning ? { x: [0, 8, 0] } : { x: [0, 3, 0] }}
+      width="80"
+      height="90"
+      viewBox="0 0 80 90"
+      animate={isWinning ? { x: [0, 5, 0] } : { x: [0, 2, 0] }}
       transition={{ repeat: Infinity, duration: isWinning ? 0.25 : 0.5, ease: 'easeInOut' }}
     >
       {/* Head */}
-      <motion.circle cx="35" cy="12" r="10" fill={skinColor} stroke={color} strokeWidth="2"
-        animate={{ cx: [35, 38, 35] }}
+      <motion.circle cx="60" cy="15" r="12" fill={skinColor} stroke={color} strokeWidth="2.5"
+        animate={{ cx: [60, 63, 60] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
-      {/* Eyes - looking left */}
-      <motion.circle cx="28" cy="10" r="2" fill="#333" animate={{ cx: [28, 31, 28] }} transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }} />
-      <motion.circle cx="32" cy="10" r="2" fill="#333" animate={{ cx: [32, 35, 32] }} transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }} />
-      {/* Mouth */}
-      <motion.path d="M 28 16 Q 31 18 34 16" stroke="#333" strokeWidth="1.5" fill="none" />
+      {/* Eyes - looking left toward rope */}
+      <circle cx="52" cy="13" r="2" fill="#333" />
+      <circle cx="57" cy="13" r="2" fill="#333" />
+      {/* Determined expression */}
+      <path d="M 52 20 Q 56 22 60 20" stroke="#333" strokeWidth="2" fill="none" />
 
-      {/* Body - leaning right (backward) */}
-      <motion.line x1="35" y1="22" x2="42" y2="45" stroke={color} strokeWidth="4" strokeLinecap="round"
-        animate={{ x1: [35, 38, 35], x2: [42, 48, 42] }}
-        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
-      />
-
-      {/* Arms reaching LEFT toward rope */}
-      <motion.line x1="38" y1="28" x2="5" y2="40" stroke={skinColor} strokeWidth="4" strokeLinecap="round"
-        animate={{ x1: [38, 41, 38], x2: [5, 10, 5] }}
-        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
-      />
-      {/* Hand gripping */}
-      <motion.circle cx="5" cy="40" r="4" fill={skinColor} stroke={color} strokeWidth="1"
-        animate={{ cx: [5, 10, 5] }}
+      {/* Body - leaning back for pulling */}
+      <motion.line x1="60" y1="27" x2="68" y2="52" stroke={color} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [60, 63, 60], x2: [68, 72, 68] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
 
-      {/* Right leg - back */}
-      <motion.line x1="42" y1="45" x2="55" y2="72" stroke={color} strokeWidth="4" strokeLinecap="round"
-        animate={{ x1: [42, 48, 42], x2: [55, 60, 55] }}
+      {/* Upper arm - shoulder to elbow */}
+      <motion.line x1="62" y1="32" x2="40" y2="38" stroke={skinColor} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [62, 65, 62], x2: [40, 42, 40] }}
+        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
+      />
+      
+      {/* Lower arm - elbow to hand (reaching toward rope at left edge) */}
+      <motion.line x1="40" y1="38" x2="5" y2="45" stroke={skinColor} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [40, 42, 40], x2: [5, 8, 5] }}
+        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
+      />
+      
+      {/* Hand gripping at rope connection point (left edge) */}
+      <motion.ellipse cx="3" cy="45" rx="5" ry="6" fill={skinColor} stroke={color} strokeWidth="1.5"
+        animate={{ cx: [3, 6, 3] }}
+        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
+      />
+      {/* Fingers wrapped around rope */}
+      <motion.path d="M 6 42 Q 0 45 6 48" stroke={skinColor} strokeWidth="3" fill="none"
+        animate={{ d: ["M 6 42 Q 0 45 6 48", "M 9 42 Q 3 45 9 48", "M 6 42 Q 0 45 6 48"] }}
+        transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
+      />
+
+      {/* Right leg - back, bracing */}
+      <motion.line x1="68" y1="52" x2="80" y2="80" stroke={color} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [68, 72, 68], x2: [80, 83, 80] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
       {/* Left leg - front */}
-      <motion.line x1="42" y1="45" x2="32" y2="72" stroke={color} strokeWidth="4" strokeLinecap="round"
-        animate={{ x1: [42, 48, 42] }}
+      <motion.line x1="68" y1="52" x2="55" y2="80" stroke={color} strokeWidth="5" strokeLinecap="round"
+        animate={{ x1: [68, 72, 68] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
       {/* Feet */}
-      <motion.ellipse cx="55" cy="74" rx="6" ry="3" fill={color}
-        animate={{ cx: [55, 60, 55] }}
+      <motion.ellipse cx="80" cy="82" rx="7" ry="4" fill={color}
+        animate={{ cx: [80, 83, 80] }}
         transition={{ repeat: Infinity, duration: 0.3 / pullIntensity }}
       />
-      <ellipse cx="32" cy="74" rx="6" ry="3" fill={color} />
+      <ellipse cx="55" cy="82" rx="7" ry="4" fill={color} />
 
-      {/* Sweat when winning */}
+      {/* Sweat drops when winning */}
       {isWinning && (
         <>
-          <motion.circle cx="45" cy="5" r="2" fill="#87CEEB"
-            animate={{ cy: [5, 20], opacity: [1, 0] }}
+          <motion.circle cx="70" cy="8" r="2" fill="#87CEEB"
+            animate={{ cy: [8, 25], opacity: [1, 0] }}
             transition={{ repeat: Infinity, duration: 0.5 }}
+          />
+          <motion.circle cx="50" cy="5" r="1.5" fill="#87CEEB"
+            animate={{ cy: [5, 22], opacity: [1, 0] }}
+            transition={{ repeat: Infinity, duration: 0.6, delay: 0.2 }}
           />
         </>
       )}
@@ -154,7 +188,7 @@ export const Rope = ({ position, winThreshold }: RopeProps) => {
   const rightIsWinning = position > 0;
 
   return (
-    <div className="relative w-full h-28 sm:h-48 my-2 sm:my-8 overflow-hidden">
+    <div className="relative w-full h-32 sm:h-52 my-2 sm:my-8 overflow-hidden">
       {/* Background - Tug of War Field */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-100 via-white to-red-100 rounded-xl sm:rounded-2xl shadow-inner">
         {/* Grass/Ground texture */}
@@ -185,21 +219,38 @@ export const Rope = ({ position, winThreshold }: RopeProps) => {
         })}
       </div>
 
-      {/* The Rope with Characters */}
+      {/* The Rope with Characters - everything moves together */}
       <motion.div
         className="absolute top-1/2 left-0 right-0 transform -translate-y-1/2"
         animate={{ x: `${percentage}%` }}
         transition={{ type: 'spring', stiffness: 200, damping: 20 }}
       >
-        {/* Rope body - thicker and more visible */}
+        {/* Left player (Blue team) - positioned so hand aligns with rope start */}
+        <div 
+          className="absolute top-1/2 scale-[0.5] sm:scale-[0.85] origin-right"
+          style={{ 
+            left: '12%', 
+            transform: 'translateY(-50%)',
+          }}
+        >
+          <LeftPullingFigure 
+            color="#3b82f6" 
+            isWinning={leftIsWinning}
+          />
+        </div>
+
+        {/* Rope body - connects directly between the hands */}
         <motion.div 
-          className="absolute left-[22%] right-[22%] top-1/2 transform -translate-y-1/2 h-2 sm:h-3 rounded-full"
+          className="absolute top-1/2 h-3 sm:h-4 rounded-full"
           style={{
+            left: '16%',
+            right: '16%',
+            transform: 'translateY(-50%)',
             background: 'repeating-linear-gradient(90deg, #d4a574 0px, #d4a574 8px, #c49a6c 8px, #c49a6c 16px)',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
+            boxShadow: '0 3px 6px rgba(0, 0, 0, 0.35)',
           }}
           animate={{
-            scaleX: [1, 1.01, 1],
+            scaleX: [1, 1.005, 1],
           }}
           transition={{
             repeat: Infinity,
@@ -209,8 +260,9 @@ export const Rope = ({ position, winThreshold }: RopeProps) => {
 
         {/* Center marker/flag */}
         <motion.div
-          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-[70%] flex flex-col items-center z-10"
-          animate={{ y: [-5, 0, -5] }}
+          className="absolute left-1/2 top-1/2 transform -translate-x-1/2 flex flex-col items-center z-10"
+          style={{ transform: 'translate(-50%, -120%)' }}
+          animate={{ y: [-3, 0, -3] }}
           transition={{ repeat: Infinity, duration: 1 }}
         >
           {/* Flag pole */}
@@ -226,16 +278,14 @@ export const Rope = ({ position, winThreshold }: RopeProps) => {
           </div>
         </motion.div>
 
-        {/* Left player (Blue team) */}
-        <div className="absolute left-[8%] top-1/2 transform -translate-y-[65%] scale-[0.6] sm:scale-100 origin-center">
-          <LeftPullingFigure 
-            color="#3b82f6" 
-            isWinning={leftIsWinning}
-          />
-        </div>
-
-        {/* Right player (Red team) - facing left */}
-        <div className="absolute right-[8%] top-1/2 transform -translate-y-[65%] scale-[0.6] sm:scale-100 origin-center">
+        {/* Right player (Red team) - positioned so hand aligns with rope end */}
+        <div 
+          className="absolute top-1/2 scale-[0.5] sm:scale-[0.85] origin-left"
+          style={{ 
+            right: '12%', 
+            transform: 'translateY(-50%)',
+          }}
+        >
           <RightPullingFigure 
             color="#ef4444" 
             isWinning={rightIsWinning}

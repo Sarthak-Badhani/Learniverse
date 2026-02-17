@@ -7,8 +7,7 @@ function App() {
     gameState,
     initializeGame,
     startGame,
-    handleInputChange,
-    submitAnswer,
+    handleOptionSelect,
     resetGame,
     restartGame,
   } = useGameState();
@@ -27,8 +26,7 @@ function App() {
     <>
       <GameBoard
         gameState={gameState}
-        onInputChange={handleInputChange}
-        onSubmit={submitAnswer}
+        onOptionSelect={handleOptionSelect}
         onStart={startGame}
       />
       

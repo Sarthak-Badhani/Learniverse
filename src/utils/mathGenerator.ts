@@ -15,6 +15,42 @@ const randomPick = <T>(arr: T[]): T => {
   return arr[Math.floor(Math.random() * arr.length)];
 };
 
+// Shuffle array (Fisher-Yates)
+const shuffleArray = <T>(arr: T[]): T[] => {
+  const shuffled = [...arr];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
+
+// Generate wrong options that are plausible but not the correct answer
+const generateWrongOptions = (correctAnswer: number, count: number): number[] => {
+  const wrongOptions: Set<number> = new Set();
+  
+  // Generate plausible wrong answers near the correct one
+  while (wrongOptions.size < count) {
+    // Random offset between -10 and +10, but not 0
+    let offset = randomInRange(1, 10) * (Math.random() > 0.5 ? 1 : -1);
+    
+    // Sometimes use multiplicative offsets for variety
+    if (Math.random() > 0.7) {
+      offset = Math.floor(correctAnswer * (Math.random() > 0.5 ? 0.1 : -0.1) * randomInRange(1, 5));
+      if (offset === 0) offset = randomInRange(1, 5);
+    }
+    
+    const wrongAnswer = correctAnswer + offset;
+    
+    // Ensure wrong answer is valid (not equal to correct, not negative for easy questions)
+    if (wrongAnswer !== correctAnswer && wrongAnswer >= 0 && !wrongOptions.has(wrongAnswer)) {
+      wrongOptions.add(wrongAnswer);
+    }
+  }
+  
+  return Array.from(wrongOptions);
+};
+
 // Generate a math question based on difficulty
 export const generateQuestion = (difficulty: Difficulty): Question => {
   const settings = DIFFICULTY_SETTINGS[difficulty];
@@ -62,6 +98,10 @@ export const generateQuestion = (difficulty: Difficulty): Question => {
       throw new Error(`Unknown operation: ${operation}`);
   }
 
+  // Generate 2 wrong options and shuffle with correct answer
+  const wrongOptions = generateWrongOptions(answer, 2);
+  const options = shuffleArray([answer, ...wrongOptions]);
+
   return {
     id: generateId(),
     num1,
@@ -69,6 +109,7 @@ export const generateQuestion = (difficulty: Difficulty): Question => {
     operation,
     answer,
     displayText: `${num1} ${operation} ${num2} = ?`,
+    options,
   };
 };
 
@@ -77,11 +118,9 @@ export const generateQuestionPair = (difficulty: Difficulty): [Question, Questio
   return [generateQuestion(difficulty), generateQuestion(difficulty)];
 };
 
-// Validate answer
-export const validateAnswer = (question: Question, userAnswer: string): boolean => {
-  const parsed = parseInt(userAnswer, 10);
-  if (isNaN(parsed)) return false;
-  return parsed === question.answer;
+// Validate MCQ answer
+export const validateAnswer = (question: Question, selectedOption: number): boolean => {
+  return selectedOption === question.answer;
 };
 
 // Get difficulty description
